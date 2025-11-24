@@ -18,14 +18,25 @@ private let products: [PackageDescription.Product] = [
     )
 ]
 
-private let dependencies: [PackageDescription.Package.Dependency] = [
+private let spmRelease = false
+
+private let local_dependencies: [PackageDescription.Package.Dependency] = [
     .package(name: "SPFKBase", path: "../SPFKBase"),
     .package(name: "SPFKAudioBase", path: "../SPFKAudioBase"),
     .package(name: "SPFKTesting", path: "../SPFKTesting"),
-    
-//     .package(url: "https://github.com/ryanfrancesconi/SPFKUtils", branch: "main"),
-//     .package(url: "https://github.com/ryanfrancesconi/SPFKTesting", branch: "main"),
 ]
+
+private let remote_dependencies: [PackageDescription.Package.Dependency] = [
+     .package(url: "https://github.com/ryanfrancesconi/SPFKBase", branch: "main"),
+     .package(url: "https://github.com/ryanfrancesconi/SPFKAudioBase", branch: "main"),
+     .package(url: "https://github.com/ryanfrancesconi/SPFKTesting", branch: "main"),
+]
+
+private var dependencies: [PackageDescription.Package.Dependency] {
+    spmRelease ?
+        remote_dependencies :
+        local_dependencies
+}
 
 private let targets: [PackageDescription.Target] = [
     // Swift
@@ -34,8 +45,6 @@ private let targets: [PackageDescription.Target] = [
         dependencies: [
             .byNameItem(name: "SPFKBase", condition: nil),
             .byNameItem(name: "SPFKAudioBase", condition: nil)
-
-        
         ]
     ),
     
