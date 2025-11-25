@@ -1,11 +1,9 @@
 // swift-tools-version: 6.2.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
-import Foundation
 import PackageDescription
 
-// Swift target
-private let name: String = "SPFKSoundAnalysis"
+private let name: String = "SPFKSoundAnalysis" // Swift target
 private let dependencyNames: [String] = ["SPFKBase", "SPFKAudioBase", "SPFKTesting"]
 private let dependencyBranch = "main"
 private let useLocalDependencies: Bool = false
