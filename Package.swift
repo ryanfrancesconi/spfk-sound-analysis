@@ -6,9 +6,9 @@ import Foundation
 
 // Swift target
 private let name: String = "SPFKSoundAnalysis"
-private let dependencyNames: [String] = ["SPFKBase", "SFKAudioBase", "SPFKTesting"]
+private let dependencyNames: [String] = ["SPFKBase", "SPFKAudioBase", "SPFKTesting"]
 private let dependencyBranch = "main"
-private let useLocalDependencies: Bool = false
+private let useLocalDependencies: Bool = true
 private let platforms: [PackageDescription.SupportedPlatform]? = [
     .macOS(.v12),
     .iOS(.v15),
