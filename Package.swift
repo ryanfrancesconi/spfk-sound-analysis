@@ -1,8 +1,8 @@
 // swift-tools-version: 6.2.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
-import PackageDescription
 import Foundation
+import PackageDescription
 
 // Swift target
 private let name: String = "SPFKSoundAnalysis"
@@ -14,8 +14,7 @@ private let platforms: [PackageDescription.SupportedPlatform]? = [
     .iOS(.v15),
 ]
 
-
-// MARK: - Reusable Code for single package
+// MARK: - Reusable Code for a Swift package
 
 private let nameTests: String = "\(name)Tests" // Test target
 private let githubBase = "https://github.com/ryanfrancesconi"
@@ -24,41 +23,26 @@ private let products: [PackageDescription.Product] = [
     .library(
         name: name,
         targets: [name]
-    )
+    ),
 ]
 
 private var packageDependencies: [PackageDescription.Package.Dependency] {
-     let local: [PackageDescription.Package.Dependency] =
+    let local: [PackageDescription.Package.Dependency] =
         dependencyNames.map {
             .package(name: "\($0)", path: "../\($0)")
         }
 
-        
-     let remote: [PackageDescription.Package.Dependency] =
+    let remote: [PackageDescription.Package.Dependency] =
         dependencyNames.map {
             .package(url: "\(githubBase)/\($0)", branch: dependencyBranch)
         }
-    
-    return useLocalDependencies ? local : remote
-}
 
-// is there a Sources/[NAME]/Resources folder?
-private var swiftTargetResources: [PackageDescription.Resource]? {
-    // package folder
-    let root = URL(fileURLWithPath: #file).deletingLastPathComponent()
-    
-    let dir = root.appending(component: "Sources")
-        .appending(component: name)
-        .appending(component: "Resources")
-    
-    let exists = FileManager.default.fileExists(atPath: dir.path)
-    
-    return exists ? [.process("Resources")] : nil
+    return useLocalDependencies ? local : remote
 }
 
 private var swiftTargetDependencies: [PackageDescription.Target.Dependency] {
     let names = dependencyNames.filter { $0 != "SPFKTesting" }
-    
+
     return names.map {
         .byNameItem(name: "\($0)", condition: nil)
     }
@@ -67,7 +51,7 @@ private var swiftTargetDependencies: [PackageDescription.Target.Dependency] {
 private let swiftTarget: PackageDescription.Target = .target(
     name: name,
     dependencies: swiftTargetDependencies,
-    resources: swiftTargetResources
+    resources: nil
 )
 
 private var testTargetDependencies: [PackageDescription.Target.Dependency] {
@@ -78,17 +62,18 @@ private var testTargetDependencies: [PackageDescription.Target.Dependency] {
     if dependencyNames.contains("SPFKTesting") {
         array.append(.byNameItem(name: "SPFKTesting", condition: nil))
     }
-    
+
     return array
 }
 
 private let testTarget: PackageDescription.Target = .testTarget(
     name: nameTests,
-    dependencies: testTargetDependencies
+    dependencies: testTargetDependencies,
+    resources: nil
 )
 
 private let targets: [PackageDescription.Target] = [
-    swiftTarget, testTarget
+    swiftTarget, testTarget,
 ]
 
 let package = Package(
@@ -100,4 +85,3 @@ let package = Package(
     targets: targets,
     cxxLanguageStandard: .cxx20
 )
-
