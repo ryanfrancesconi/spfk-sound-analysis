@@ -6,15 +6,11 @@ import PackageDescription
 let package = Package(
     name: "spfk-sound-analysis",
     defaultLocalization: "en",
-    platforms: [
-        .macOS(.v12),
-    ],
+    platforms: [.macOS(.v12),],
     products: [
         .library(
             name: "SPFKSoundAnalysis",
-            targets: [
-                "SPFKSoundAnalysis",
-            ]
+            targets: ["SPFKSoundAnalysis",]
         ),
     ],
     dependencies: [
@@ -33,7 +29,7 @@ let package = Package(
         .testTarget(
             name: "SPFKSoundAnalysisTests",
             dependencies: [
-                "SPFKSoundAnalysis",
+                .targetItem(name: "SPFKSoundAnalysis", condition: nil),
                 .product(name: "SPFKTesting", package: "spfk-testing"),
             ]
         ),
