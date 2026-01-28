@@ -44,7 +44,13 @@ extension SoundClassification {
     ) async throws -> [SNClassification]? {
         //
         let request = try SNClassifySoundRequest(classifierIdentifier: .version1)
-        return try await process(request: request, url: url, overlapFactor: overlapFactor, minimumConfidence: minimumConfidence)
+
+        return try await process(
+            request: request,
+            url: url,
+            overlapFactor: overlapFactor,
+            minimumConfidence: minimumConfidence
+        )
     }
 
     fileprivate static func process(
@@ -58,6 +64,9 @@ extension SoundClassification {
         let analyzer = try SNAudioFileAnalyzer(url: url)
         let observer = SoundClassificationResultObserver(minimumConfidence: minimumConfidence)
         try analyzer.add(request, withObserver: observer)
+
+        try Task.checkCancellation()
+
         await analyzer.analyze()
         return observer.classifications
     }
