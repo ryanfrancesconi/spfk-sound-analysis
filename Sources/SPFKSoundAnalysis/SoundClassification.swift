@@ -1,6 +1,6 @@
 
 import Foundation
-import SoundAnalysis
+@preconcurrency import SoundAnalysis
 
 public enum SoundClassification {
     public static let defaultOverlap: Double = 0.5
@@ -42,7 +42,6 @@ extension SoundClassification {
         overlapFactor: Double = defaultOverlap,
         minimumConfidence: Double = defaultConfidence
     ) async throws -> [SNClassification]? {
-        //
         let request = try SNClassifySoundRequest(classifierIdentifier: .version1)
 
         return try await process(
@@ -67,7 +66,16 @@ extension SoundClassification {
 
         try Task.checkCancellation()
 
-        await analyzer.analyze()
+        // nonisolated(unsafe) needed because SNAudioFileAnalyzer is not Sendable
+        // but is safe to use here as we await completion before accessing results
+        nonisolated(unsafe) let sendableAnalyzer = analyzer
+
+        await withTaskCancellationHandler {
+            await sendableAnalyzer.analyze()
+        } onCancel: {
+            sendableAnalyzer.cancelAnalysis()
+        }
+
         return observer.classifications
     }
 }

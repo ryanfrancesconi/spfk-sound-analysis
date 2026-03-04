@@ -1,11 +1,16 @@
 import Foundation
 import SoundAnalysis
 
-/// Result for SoundAnalysis processing
+/// Result for SoundAnalysis processing.
+/// Aggregates classifications across all analysis windows,
+/// keeping the highest confidence seen for each identifier.
 public class SoundClassificationResultObserver: NSObject, SNResultsObserving {
     public private(set) var classifications: [SNClassification]?
 
-    public private(set) var minimumConfidence: Double
+    public let minimumConfidence: Double
+
+    /// Tracks the best confidence seen per identifier across all windows
+    private var bestByIdentifier: [String: SNClassification] = [:]
 
     public init(minimumConfidence: Double = SoundClassification.defaultConfidence) {
         self.minimumConfidence = minimumConfidence
@@ -13,16 +18,22 @@ public class SoundClassificationResultObserver: NSObject, SNResultsObserving {
 
     public func request(_ request: SNRequest, didProduce result: SNResult) {
         guard let result = result as? SNClassificationResult else {
-            classifications = nil
             return
         }
 
-        let all = result.classifications
-            .filter { $0.confidence >= minimumConfidence }
-            .sorted { lhs, rhs in
-                lhs.confidence > rhs.confidence
-            }
+        for classification in result.classifications where classification.confidence >= minimumConfidence {
+            let id = classification.identifier
 
-        classifications = all
+            if let existing = bestByIdentifier[id] {
+                if classification.confidence > existing.confidence {
+                    bestByIdentifier[id] = classification
+                }
+            } else {
+                bestByIdentifier[id] = classification
+            }
+        }
+
+        classifications = bestByIdentifier.values
+            .sorted { $0.confidence > $1.confidence }
     }
 }
