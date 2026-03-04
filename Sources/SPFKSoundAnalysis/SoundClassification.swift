@@ -1,6 +1,6 @@
-
 import Foundation
 @preconcurrency import SoundAnalysis
+import SPFKBase
 
 public enum SoundClassification {
     public static let defaultOverlap: Double = 0.5
@@ -70,10 +70,14 @@ extension SoundClassification {
         // but is safe to use here as we await completion before accessing results
         nonisolated(unsafe) let sendableAnalyzer = analyzer
 
-        await withTaskCancellationHandler {
+        let result = await withTaskCancellationHandler {
             await sendableAnalyzer.analyze()
         } onCancel: {
             sendableAnalyzer.cancelAnalysis()
+        }
+
+        guard result else {
+            throw NSError(description: "Cancelled analysis")
         }
 
         return observer.classifications
