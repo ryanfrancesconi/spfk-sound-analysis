@@ -1,5 +1,8 @@
 # SPFKSoundAnalysis
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fryanfrancesconi%2Fspfk-sound-analysis%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/ryanfrancesconi/spfk-sound-analysis)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fryanfrancesconi%2Fspfk-sound-analysis%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/ryanfrancesconi/spfk-sound-analysis)
+
 ML sound classification for Swift, built on Apple's [SoundAnalysis](https://developer.apple.com/documentation/soundanalysis) framework.
 
 ## Features
