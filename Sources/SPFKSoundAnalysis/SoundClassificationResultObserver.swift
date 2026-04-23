@@ -25,7 +25,7 @@ public class SoundClassificationResultObserver: NSObject, SNResultsObserving {
             let id = classification.identifier
 
             if let existing = bestByIdentifier[id] {
-                if classification.confidence > existing.confidence {
+                if classification.confidence >= existing.confidence {
                     bestByIdentifier[id] = classification
                 }
             } else {
