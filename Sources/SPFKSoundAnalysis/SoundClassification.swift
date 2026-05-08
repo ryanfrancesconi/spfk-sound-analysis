@@ -4,7 +4,7 @@ import SPFKBase
 
 public enum SoundClassification {
     public static let defaultOverlap: Double = 0.5
-    public static let defaultConfidence: Double = 0.3
+    public static let defaultConfidence: Double = 0.6
 
     public static func knownClassificationsForVersion1() throws -> [String] {
         try SNClassifySoundRequest(classifierIdentifier: .version1).knownClassifications
