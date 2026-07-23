@@ -6,7 +6,7 @@ import SoundAnalysis
 import SPFKTesting
 import Testing
 
-@Suite(.serialized, .tags(.file))
+@Suite(.tags(.file))
 final class SoundClassificationTests: TestCaseModel {
     @Test func analyze() async throws {
         let url = TestBundleResources.shared.tabla_wav
