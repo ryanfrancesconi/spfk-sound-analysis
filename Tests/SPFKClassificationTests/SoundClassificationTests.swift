@@ -1,7 +1,7 @@
 import Foundation
 import SPFKAudioBase
 import SPFKBase
-@testable import SPFKSoundAnalysis
+@testable import SPFKClassification
 import SoundAnalysis
 import SPFKTesting
 import Testing
