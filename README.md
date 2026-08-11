@@ -64,13 +64,19 @@ let results = try await SoundClassification.analyze(
 
 ### Classify with a Custom ML Model
 
+`MLModel` loads a *compiled* model (`.mlmodelc`). A model exported from Create ML (`.mlpackage`, `.mlmodel`) has to be compiled first, and `compileModel(at:)` writes to a temporary location — copy it somewhere permanent to avoid recompiling on every launch.
+
 ```swift
-let model = try MLModel(contentsOf: modelURL)
+let compiledURL = try await MLModel.compileModel(at: modelURL)
+let model = try await MLModel.load(contentsOf: compiledURL)
+
 let results = try await SoundClassification.analyze(
     using: model,
     url: url
 )
 ```
+
+The model must accept audio input and output a classification dictionary.
 
 ### Query Known Sound Categories
 
