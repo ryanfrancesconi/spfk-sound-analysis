@@ -78,8 +78,12 @@ extension SoundClassification {
             sendableAnalyzer.cancelAnalysis()
         }
 
+        // `analyze()` reports false for both a cancel and a failed read, so the enclosing task
+        // is what distinguishes them.
+        try Task.checkCancellation()
+
         guard result else {
-            throw NSError(description: "Cancelled analysis")
+            throw NSError(description: "Failed to analyze audio")
         }
 
         return observer.classifications
