@@ -57,88 +57,33 @@ The two paths share no code — the frameworks beneath them differ in how result
 - **`SoundClassificationResultObserver`** — `SNResultsObserving` conformant observer that aggregates classification results across all analysis windows, retaining the highest confidence seen for each sound identifier.
 - **`ImageClassification`** — Entry point enum with static `analyze`/`analyzeVideo` methods. Handles request creation, the request handler, confidence filtering, and (for video) frame sampling and cross-frame aggregation.
 
-## Usage
-
-### Classify an Audio File
-
-```swift
-import SPFKClassification
-
-let url = URL(fileURLWithPath: "/path/to/audio.wav")
-let results = try await SoundClassification.analyze(url: url)
-
-for classification in results ?? [] {
-    print("\(classification.identifier): \(classification.confidence)")
-}
-```
-
-With custom confidence and overlap:
-
-```swift
-let results = try await SoundClassification.analyze(
-    url: url,
-    overlapFactor: 0.8,
-    minimumConfidence: 0.5
-)
-```
-
-### Classify an Image
-
-```swift
-import SPFKClassification
-
-let url = URL(fileURLWithPath: "/path/to/photo.jpg")
-let results = try await ImageClassification.analyze(url: url)
-
-for classification in results ?? [] {
-    print("\(classification.identifier): \(classification.confidence)")
-}
-```
-
-An in-memory `CGImage` works too, via `ImageClassification.analyze(cgImage:)`.
-
-### Classify a Video's Visual Content
-
-```swift
-let videoURL = URL(fileURLWithPath: "/path/to/video.mp4")
-let results = try await ImageClassification.analyzeVideo(
-    url: videoURL,
-    sampling: .fixedInterval(step: 2.0)
-)
-```
-
-`sampling` uses a `SamplingStrategy` enum rather than a bare interval so a future, smarter
-sampling mode (e.g. perceptual-difference-based frame selection) can be added later without
-an API-breaking change. `.fixedInterval` is the only strategy for now. There is no
-maximum-frame-count safety cap: a long video sampled at a small step interval means one real
-classification call per sampled frame, so a caller exposing `step` as a UI control should make
-that cost visible (or bound it) itself.
-
-### Classify with a Custom ML Model
+## Custom ML models
 
 Both entry points take an `MLModel` in place of the built-in classifier.
 
-`MLModel` loads a *compiled* model (`.mlmodelc`). A model exported from Create ML (`.mlpackage`, `.mlmodel`) has to be compiled first, and `compileModel(at:)` writes to a temporary location — copy it somewhere permanent to avoid recompiling on every launch.
+`MLModel` loads a *compiled* model (`.mlmodelc`). A model exported from Create ML (`.mlpackage`,
+`.mlmodel`) has to be compiled first, and `compileModel(at:)` writes to a temporary location — copy
+it somewhere permanent to avoid recompiling on every launch.
 
-```swift
-let compiledURL = try await MLModel.compileModel(at: modelURL)
-let model = try await MLModel.load(contentsOf: compiledURL)
+A sound model must accept audio input and output a classification dictionary. An image model must be
+one Vision accepts as a `VNCoreMLModel`; results are narrowed to `VNClassificationObservation`, so a
+model backing any other observation kind yields an empty result rather than an error.
 
-let soundResults = try await SoundClassification.analyze(using: model, url: audioURL)
-let imageResults = try await ImageClassification.analyze(using: model, url: imageURL)
-```
+## Video sampling
 
-A sound model must accept audio input and output a classification dictionary. An image model must be one Vision accepts as a `VNCoreMLModel`; results are narrowed to `VNClassificationObservation`, so a model backing any other observation kind yields an empty result rather than an error.
+`analyzeVideo` takes a `SamplingStrategy` rather than a bare interval, so a smarter future mode —
+perceptual-difference-based frame selection, say — can be added without an API break.
+`.fixedInterval` is the only strategy today.
 
-### Query Known Categories
+There is **no maximum-frame-count safety cap**: a long video sampled at a small step means one real
+classification call per sampled frame, so a caller exposing the step as a UI control has to make
+that cost visible, or bound it, itself.
 
-```swift
-let soundCategories = try SoundClassification.knownClassificationsForVersion1()
-// speech, music, laughter, dog_bark, siren, ...
+## Known categories
 
-let imageIdentifiers = try ImageClassification.knownClassifications()
-// abacus, accordion, acorn, acrobat, adult, ...
-```
+`SoundClassification.knownClassificationsForVersion1()` and
+`ImageClassification.knownClassifications()` list what each built-in classifier can name — speech,
+music, laughter, dog bark and the rest for sound; a broad everyday taxonomy for images.
 
 ## Confidence defaults
 
